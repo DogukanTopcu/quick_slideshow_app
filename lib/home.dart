@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quick_slideshow/screen/editor.dart';
 import 'package:quick_slideshow/screen/upgrade.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -110,9 +111,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 )),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            isEmpty = !isEmpty;
-          });
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => const Editor()));
         },
         backgroundColor: Colors.deepPurpleAccent,
         child: const Icon(
