@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:quick_slideshow/home.dart';
 
 class Editor extends StatefulWidget {
   const Editor({super.key});
@@ -9,6 +11,18 @@ class Editor extends StatefulWidget {
 
 class _EditorState extends State<Editor> {
   String documentName = "Slideshow";
+  final ImagePicker ip = ImagePicker();
+  List<XFile> imageFileList = [];
+
+  void _selectImages() async {
+    final List<XFile> selectedImages = await ip.pickMultiImage();
+
+    if (selectedImages.isNotEmpty) {
+      imageFileList.addAll(selectedImages);
+    }
+
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +32,17 @@ class _EditorState extends State<Editor> {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(
-                  Icons.close,
-                  color: Colors.white,
+                IconButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MyHomePage()));
+                  },
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -73,9 +95,30 @@ class _EditorState extends State<Editor> {
               flex: 2,
               child: Container(
                 color: Colors.orange,
-                child: const Center(
-                  child: Text("data"),
-                ),
+                child: Center(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      child: const Text("Add Photo"),
+                      onPressed: () {
+                        _selectImages();
+                      },
+                    ),
+                    ElevatedButton(
+                      child: const Text("Add Music"),
+                      onPressed: () async {
+                        // final result = await
+                      },
+                    ),
+                    ElevatedButton(
+                      child: const Text("Export"),
+                      onPressed: () async {
+                        // final result = await
+                      },
+                    ),
+                  ],
+                )),
               ),
             ),
           ],
