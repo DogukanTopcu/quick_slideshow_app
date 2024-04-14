@@ -78,11 +78,11 @@ class _EditorState extends State<Editor> {
                 child: Container(
                   color: Colors.black,
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.width,
-                  child: const Column(
+                  height: MediaQuery.of(context).size.width / 2,
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Bum"),
+                      Text(selectedImageIndex.toString()),
                     ],
                   ),
                 ),
@@ -97,39 +97,54 @@ class _EditorState extends State<Editor> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.arrow_left,
-                            color: Colors.black,
+                          onPressed: imageFileList.isEmpty ? null : () {},
+                          icon: Icon(
+                            Icons.keyboard_arrow_left_outlined,
+                            color: imageFileList.isEmpty
+                                ? Colors.black26
+                                : Colors.black,
+                            size: 36,
                           )),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
-                              onPressed: () {},
-                              icon: const Icon(
+                              onPressed: !isPlaying ? null : () {},
+                              icon: Icon(
                                 Icons.keyboard_double_arrow_left,
-                                color: Colors.black,
+                                color:
+                                    isPlaying ? Colors.black : Colors.black26,
+                                size: 36,
                               )),
                           IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                setState(() {
+                                  isPlaying = !isPlaying;
+                                });
+                              },
                               icon: Icon(
                                 !isPlaying ? Icons.play_arrow : Icons.pause,
-                                color: Colors.black,
+                                color: Colors.deepPurpleAccent,
+                                size: 36,
                               )),
                           IconButton(
-                              onPressed: () {},
-                              icon: const Icon(
+                              onPressed: !isPlaying ? null : () {},
+                              icon: Icon(
                                 Icons.keyboard_double_arrow_right,
-                                color: Colors.black,
+                                color:
+                                    isPlaying ? Colors.black : Colors.black26,
+                                size: 36,
                               )),
                         ],
                       ),
                       IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.arrow_right,
-                            color: Colors.black,
+                          onPressed: imageFileList.isEmpty ? null : () {},
+                          icon: Icon(
+                            Icons.keyboard_arrow_right_outlined,
+                            color: imageFileList.isEmpty
+                                ? Colors.black26
+                                : Colors.black,
+                            size: 36,
                           )),
                     ],
                   )),
@@ -144,7 +159,7 @@ class _EditorState extends State<Editor> {
                   children: [
                     Container(
                         color: Colors.black,
-                        height: 144,
+                        height: 184,
                         child: imageFileList.isEmpty
                             ? const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -163,14 +178,28 @@ class _EditorState extends State<Editor> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Container(
-                                          width: 98,
-                                          height: 98,
-                                          margin: const EdgeInsets.all(8),
-                                          child: Image.file(
-                                            File(imageFileList[index].path),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
+                                            width: 110,
+                                            height: 110,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 5),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            ),
+                                            margin: const EdgeInsets.symmetric(
+                                                horizontal: 16),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  selectedImageIndex = index;
+                                                });
+                                              },
+                                              child: Image.file(
+                                                File(imageFileList[index].path),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            )),
                                       ],
                                     );
                                   }
@@ -179,14 +208,28 @@ class _EditorState extends State<Editor> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Container(
-                                          width: 98,
-                                          height: 98,
-                                          margin: const EdgeInsets.all(8),
-                                          child: Image.file(
-                                            File(imageFileList[index].path),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
+                                            width: 110,
+                                            height: 110,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 5),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            ),
+                                            margin: const EdgeInsets.symmetric(
+                                                horizontal: 16),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  selectedImageIndex = index;
+                                                });
+                                              },
+                                              child: Image.file(
+                                                File(imageFileList[index].path),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            )),
                                         const Icon(
                                             Icons.keyboard_double_arrow_right),
                                       ]);
