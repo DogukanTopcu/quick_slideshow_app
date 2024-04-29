@@ -163,70 +163,140 @@ class _EditorState extends State<Editor> {
 
   Widget screen_16_9(BuildContext context) {
     context = this.context;
-    return FractionallySizedBox(
-      heightFactor: 1.0,
-      widthFactor: 0.5625,
-      child: Container(
-        color: Colors.black,
-        child: selectedImageIndex != -1
-            ? Image.file(
-                File(imageFileList[selectedImageIndex].path),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      bool constraint = constraints.maxWidth < (constraints.maxHeight * 9 / 16)
+          ? true
+          : false;
+
+      if (constraint) {
+        return Container(
+          color: Colors.black,
+          width: constraints.maxWidth,
+          height: constraints.maxWidth * 16 / 9,
+          child: selectedImageIndex != -1
+              ? Image.file(
+                  File(imageFileList[selectedImageIndex].path),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        );
+      } else {
+        return Container(
+          color: Colors.black,
+          width: constraints.maxHeight * 9 / 16,
+          height: constraints.maxHeight,
+          child: selectedImageIndex != -1
+              ? Image.file(
+                  File(imageFileList[selectedImageIndex].path),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        );
+      }
+    });
   }
 
   Widget screen_9_16(BuildContext context) {
     context = this.context;
-    return FractionallySizedBox(
-      heightFactor: 0.5625,
-      widthFactor: 1.0,
-      child: Container(
-        color: Colors.black,
-        child: selectedImageIndex != -1
-            ? Image.file(
-                File(imageFileList[selectedImageIndex].path),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      bool constraint = constraints.maxHeight < (constraints.maxWidth * 9 / 16)
+          ? true
+          : false;
+
+      if (constraint) {
+        return Container(
+          color: Colors.black,
+          width: constraints.maxHeight * 16 / 9,
+          height: constraints.maxHeight,
+          child: selectedImageIndex != -1
+              ? Image.file(
+                  File(imageFileList[selectedImageIndex].path),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        );
+      } else {
+        return Container(
+          color: Colors.black,
+          width: constraints.maxWidth,
+          height: constraints.maxWidth * 9 / 16,
+          child: selectedImageIndex != -1
+              ? Image.file(
+                  File(imageFileList[selectedImageIndex].path),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        );
+      }
+    });
   }
 
   Widget screen_4_3(BuildContext context) {
     context = this.context;
-    return FractionallySizedBox(
-      heightFactor: 1.0,
-      widthFactor: 0.75,
-      child: Container(
-        color: Colors.black,
-        child: selectedImageIndex != -1
-            ? Image.file(
-                File(imageFileList[selectedImageIndex].path),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      bool constraint =
+          constraints.maxWidth < (constraints.maxHeight * 3 / 4) ? true : false;
+
+      if (constraint) {
+        return Container(
+          color: Colors.black,
+          width: constraints.maxWidth,
+          height: constraints.maxWidth * 4 / 3,
+          child: selectedImageIndex != -1
+              ? Image.file(
+                  File(imageFileList[selectedImageIndex].path),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        );
+      } else {
+        return Container(
+          color: Colors.black,
+          width: constraints.maxHeight * 3 / 4,
+          height: constraints.maxHeight,
+          child: selectedImageIndex != -1
+              ? Image.file(
+                  File(imageFileList[selectedImageIndex].path),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        );
+      }
+    });
   }
 
   Widget screen_3_4(BuildContext context) {
     context = this.context;
-    return FractionallySizedBox(
-      heightFactor: 0.75,
-      widthFactor: 1.0,
-      child: Container(
-        color: Colors.black,
-        child: selectedImageIndex != -1
-            ? Image.file(
-                File(imageFileList[selectedImageIndex].path),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      bool constraint =
+          constraints.maxHeight < (constraints.maxWidth * 3 / 4) ? true : false;
+
+      if (constraint) {
+        return Container(
+          color: Colors.black,
+          width: constraints.maxHeight * 4 / 3,
+          height: constraints.maxHeight,
+          child: selectedImageIndex != -1
+              ? Image.file(
+                  File(imageFileList[selectedImageIndex].path),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        );
+      } else {
+        return Container(
+          color: Colors.black,
+          width: constraints.maxWidth,
+          height: constraints.maxWidth * 3 / 4,
+          child: selectedImageIndex != -1
+              ? Image.file(
+                  File(imageFileList[selectedImageIndex].path),
+                  fit: BoxFit.cover,
+                )
+              : null,
+        );
+      }
+    });
   }
 
   Widget playButtons(BuildContext context) {
