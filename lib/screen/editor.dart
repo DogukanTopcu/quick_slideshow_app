@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:quick_slideshow/home.dart';
+import 'package:quick_slideshow/screen/settings.dart';
 
 // import 'package:flutter_animate/flutter_animate.dart';
 
@@ -14,14 +15,17 @@ class Editor extends StatefulWidget {
 }
 
 class _EditorState extends State<Editor> {
-  String documentName = "Slideshow";
-
+  // Attributes for image picker
   final ImagePicker ip = ImagePicker();
   List<XFile> imageFileList = [];
-
   int selectedImageIndex = -1;
 
+  // Attributes used and can changed in editor screen
+  String documentName = "Slideshow";
   bool isPlaying = false;
+
+  // Attributes used but cannot changed in editor screen, it can be changed with settings screen
+  int screenFormat = 0;
 
   void _selectImages() async {
     final List<XFile> selectedImages = await ip.pickMultiImage();
@@ -66,9 +70,18 @@ class _EditorState extends State<Editor> {
                     style: const TextStyle(fontSize: 18),
                   ),
                 ),
-                const Icon(
-                  Icons.settings,
-                  color: Colors.white,
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                Settings(initialScreenFormat: screenFormat)));
+                  },
+                  icon: const Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             )),
@@ -101,31 +114,51 @@ class _EditorState extends State<Editor> {
             Container(
               color: Colors.white54,
             ),
-            screen_9_16(context),
+            Builder(builder: (context) {
+              switch (screenFormat) {
+                case 0:
+                  return screen_1_1(context);
+                case 1:
+                  return screen_16_9(context);
+                case 2:
+                  return screen_9_16(context);
+                case 3:
+                  return screen_4_3(context);
+                case 4:
+                  return screen_3_4(context);
+                default:
+                  return screen_1_1(context);
+              }
+            })
           ],
         ));
   }
 
   Widget screen_1_1(BuildContext context) {
     context = this.context;
-    return Container(
-      color: Colors.black,
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width,
-      child: selectedImageIndex != -1
-          ? Image.file(
-              File(imageFileList[selectedImageIndex].path),
-              fit: BoxFit.cover,
-            )
-          : null,
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      double size = constraints.maxWidth < constraints.maxHeight
+          ? constraints.maxWidth
+          : constraints.maxHeight;
+      return Container(
+        color: Colors.black,
+        width: size,
+        height: size,
+        child: selectedImageIndex != -1
+            ? Image.file(
+                File(imageFileList[selectedImageIndex].path),
+                fit: BoxFit.cover,
+              )
+            : null,
+      );
+    });
   }
 
   Widget screen_16_9(BuildContext context) {
     context = this.context;
     return FractionallySizedBox(
       heightFactor: 1.0,
-      widthFactor: 0.6,
+      widthFactor: 0.5625,
       child: Container(
         color: Colors.black,
         child: selectedImageIndex != -1
@@ -141,8 +174,8 @@ class _EditorState extends State<Editor> {
   Widget screen_9_16(BuildContext context) {
     context = this.context;
     return FractionallySizedBox(
-      heightFactor: 1.0,
-      widthFactor: 0.6,
+      heightFactor: 0.5625,
+      widthFactor: 1.0,
       child: Container(
         color: Colors.black,
         child: selectedImageIndex != -1
@@ -159,7 +192,7 @@ class _EditorState extends State<Editor> {
     context = this.context;
     return FractionallySizedBox(
       heightFactor: 1.0,
-      widthFactor: 0.6,
+      widthFactor: 0.75,
       child: Container(
         color: Colors.black,
         child: selectedImageIndex != -1
@@ -175,8 +208,8 @@ class _EditorState extends State<Editor> {
   Widget screen_3_4(BuildContext context) {
     context = this.context;
     return FractionallySizedBox(
-      heightFactor: 1.0,
-      widthFactor: 0.6,
+      heightFactor: 0.75,
+      widthFactor: 1.0,
       child: Container(
         color: Colors.black,
         child: selectedImageIndex != -1
