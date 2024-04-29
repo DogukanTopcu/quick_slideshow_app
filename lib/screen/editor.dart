@@ -22,6 +22,7 @@ class _EditorState extends State<Editor> {
 
   // Attributes used and can changed in editor screen
   String documentName = "Slideshow";
+  final TextEditingController _textEditingController = TextEditingController();
   bool isPlaying = false;
 
   // Attributes used but cannot changed in editor screen, it can be changed with settings screen
@@ -61,9 +62,7 @@ class _EditorState extends State<Editor> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    setState(() {
-                      documentName = "New Slideshow";
-                    });
+                    _openPanel();
                   },
                   child: Text(
                     documentName,
@@ -103,14 +102,6 @@ class _EditorState extends State<Editor> {
         ));
   }
 
-  void _showsnackbar(String message) =>
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          duration: const Duration(seconds: 1),
-        ),
-      );
-
   Widget screen(BuildContext context) {
     context = this.context;
     return Expanded(
@@ -141,6 +132,7 @@ class _EditorState extends State<Editor> {
         ));
   }
 
+  // Widgets used in Editor screen
   Widget screen_1_1(BuildContext context) {
     context = this.context;
     return LayoutBuilder(builder: (context, constraints) {
@@ -516,4 +508,58 @@ class _EditorState extends State<Editor> {
       ),
     );
   }
+
+  // Functions:
+  void _openPanel() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _textEditingController,
+                decoration: const InputDecoration(labelText: 'Yeni Metin'),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      if (_textEditingController.text.isEmpty) {
+                        _showsnackbar("The file name cannot be blank");
+                      } else {
+                        setState(() {
+                          documentName = _textEditingController.text;
+                        });
+                      }
+                    },
+                    child: const Text('Onayla'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('İptal Et'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showsnackbar(String message) =>
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 1),
+        ),
+      );
 }
