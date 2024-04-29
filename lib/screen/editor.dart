@@ -75,8 +75,15 @@ class _EditorState extends State<Editor> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                Settings(initialScreenFormat: screenFormat)));
+                            builder: (context) => Settings(
+                                  initialScreenFormat: screenFormat,
+                                  initialChangeScreenFormat:
+                                      (int newScreenFormat) {
+                                    setState(() {
+                                      screenFormat = newScreenFormat;
+                                    });
+                                  },
+                                )));
                   },
                   icon: const Icon(
                     Icons.settings,
