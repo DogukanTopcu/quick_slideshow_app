@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quick_slideshow/home.dart';
+import 'package:quick_slideshow/providers/editorProvider.dart';
+import 'package:provider/provider.dart';
 
 // TODOS:
 /*
@@ -19,7 +21,10 @@ import 'package:quick_slideshow/home.dart';
 */
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider<EditorProvider>(
+    create: (BuildContext context) => EditorProvider(),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {

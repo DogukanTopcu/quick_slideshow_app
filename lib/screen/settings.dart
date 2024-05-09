@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:quick_slideshow/providers/editorProvider.dart';
 
 class Settings extends StatefulWidget {
-  final int initialScreenFormat;
-  final Function initialChangeScreenFormat;
-  const Settings(
-      {super.key,
-      required this.initialScreenFormat,
-      required this.initialChangeScreenFormat});
+  const Settings({super.key});
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -18,7 +15,8 @@ class _SettingsState extends State<Settings> {
   @override
   void initState() {
     super.initState();
-    _screenFormat = widget.initialScreenFormat;
+    _screenFormat =
+        Provider.of<EditorProvider>(context, listen: false).screenFormat;
   }
 
   @override
@@ -35,7 +33,8 @@ class _SettingsState extends State<Settings> {
               ),
               IconButton(
                 onPressed: () {
-                  widget.initialChangeScreenFormat(_screenFormat);
+                  Provider.of<EditorProvider>(context, listen: false)
+                      .changeScreenFormat(_screenFormat);
                   Navigator.pop(context);
                 },
                 icon: const Icon(

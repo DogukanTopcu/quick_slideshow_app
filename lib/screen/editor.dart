@@ -2,8 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:quick_slideshow/components/controlPanel.dart';
+import 'package:quick_slideshow/components/editingContents.dart';
+import 'package:quick_slideshow/components/editorArea.dart';
 import 'package:quick_slideshow/home.dart';
+import 'package:quick_slideshow/providers/editorProvider.dart';
 import 'package:quick_slideshow/screen/settings.dart';
+
+import 'dart:math' as math;
 
 // import 'package:flutter_animate/flutter_animate.dart';
 
@@ -28,20 +35,25 @@ class _EditorState extends State<Editor> {
   // Attributes used but cannot changed in editor screen, it can be changed with settings screen
   int screenFormat = 0;
 
-  void _selectImages() async {
-    final List<XFile> selectedImages = await ip.pickMultiImage();
+  double _imageScale = 1;
+  List<Widget> textList = [];
 
-    if (selectedImages.isNotEmpty) {
-      imageFileList.addAll(selectedImages);
-    }
+  Matrix4 _matrix = Matrix4(
+    1, 0, 0, 0, //
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1,
+  );
 
-    setState(() {
-      selectedImageIndex = 0;
-    });
-  }
+  double _baseScaleFactor = 1.0;
+  double _scaleFactor = 1.0;
+
+  double _baseAngleFactor = 0;
+  double _angleFactor = 0;
 
   @override
   Widget build(BuildContext context) {
+    documentName = Provider.of<EditorProvider>(context).documentName;
     return Scaffold(
         appBar: AppBar(
             backgroundColor: Colors.deepPurpleAccent,
@@ -50,6 +62,8 @@ class _EditorState extends State<Editor> {
               children: [
                 IconButton(
                   onPressed: () {
+                    Provider.of<EditorProvider>(context, listen: false)
+                        .initState();
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -74,15 +88,7 @@ class _EditorState extends State<Editor> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => Settings(
-                                  initialScreenFormat: screenFormat,
-                                  initialChangeScreenFormat:
-                                      (int newScreenFormat) {
-                                    setState(() {
-                                      screenFormat = newScreenFormat;
-                                    });
-                                  },
-                                )));
+                            builder: (context) => const Settings()));
                   },
                   icon: const Icon(
                     Icons.settings,
@@ -106,372 +112,25 @@ class _EditorState extends State<Editor> {
     context = this.context;
     return Expanded(
         flex: 7,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              color: Colors.white54,
-            ),
-            Builder(builder: (context) {
-              switch (screenFormat) {
-                case 0:
-                  return screen_1_1(context);
-                case 1:
-                  return screen_16_9(context);
-                case 2:
-                  return screen_9_16(context);
-                case 3:
-                  return screen_4_3(context);
-                case 4:
-                  return screen_3_4(context);
-                default:
-                  return screen_1_1(context);
-              }
-            })
-          ],
-        ));
-  }
-
-  // Widgets used in Editor screen
-  Widget screen_1_1(BuildContext context) {
-    context = this.context;
-    return LayoutBuilder(builder: (context, constraints) {
-      double size = constraints.maxWidth < constraints.maxHeight
-          ? constraints.maxWidth
-          : constraints.maxHeight;
-      return Container(
-        color: Colors.black,
-        width: size,
-        height: size,
-        child: selectedImageIndex != -1
-            ? Image.file(
-                File(imageFileList[selectedImageIndex].path),
-                fit: BoxFit.cover,
-              )
-            : null,
-      );
-    });
-  }
-
-  Widget screen_16_9(BuildContext context) {
-    context = this.context;
-    return LayoutBuilder(builder: (context, constraints) {
-      bool constraint = constraints.maxWidth < (constraints.maxHeight * 9 / 16)
-          ? true
-          : false;
-
-      if (constraint) {
-        return Container(
-          color: Colors.black,
-          width: constraints.maxWidth,
-          height: constraints.maxWidth * 16 / 9,
-          child: selectedImageIndex != -1
-              ? Image.file(
-                  File(imageFileList[selectedImageIndex].path),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        );
-      } else {
-        return Container(
-          color: Colors.black,
-          width: constraints.maxHeight * 9 / 16,
-          height: constraints.maxHeight,
-          child: selectedImageIndex != -1
-              ? Image.file(
-                  File(imageFileList[selectedImageIndex].path),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        );
-      }
-    });
-  }
-
-  Widget screen_9_16(BuildContext context) {
-    context = this.context;
-    return LayoutBuilder(builder: (context, constraints) {
-      bool constraint = constraints.maxHeight < (constraints.maxWidth * 9 / 16)
-          ? true
-          : false;
-
-      if (constraint) {
-        return Container(
-          color: Colors.black,
-          width: constraints.maxHeight * 16 / 9,
-          height: constraints.maxHeight,
-          child: selectedImageIndex != -1
-              ? Image.file(
-                  File(imageFileList[selectedImageIndex].path),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        );
-      } else {
-        return Container(
-          color: Colors.black,
-          width: constraints.maxWidth,
-          height: constraints.maxWidth * 9 / 16,
-          child: selectedImageIndex != -1
-              ? Image.file(
-                  File(imageFileList[selectedImageIndex].path),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        );
-      }
-    });
-  }
-
-  Widget screen_4_3(BuildContext context) {
-    context = this.context;
-    return LayoutBuilder(builder: (context, constraints) {
-      bool constraint =
-          constraints.maxWidth < (constraints.maxHeight * 3 / 4) ? true : false;
-
-      if (constraint) {
-        return Container(
-          color: Colors.black,
-          width: constraints.maxWidth,
-          height: constraints.maxWidth * 4 / 3,
-          child: selectedImageIndex != -1
-              ? Image.file(
-                  File(imageFileList[selectedImageIndex].path),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        );
-      } else {
-        return Container(
-          color: Colors.black,
-          width: constraints.maxHeight * 3 / 4,
-          height: constraints.maxHeight,
-          child: selectedImageIndex != -1
-              ? Image.file(
-                  File(imageFileList[selectedImageIndex].path),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        );
-      }
-    });
-  }
-
-  Widget screen_3_4(BuildContext context) {
-    context = this.context;
-    return LayoutBuilder(builder: (context, constraints) {
-      bool constraint =
-          constraints.maxHeight < (constraints.maxWidth * 3 / 4) ? true : false;
-
-      if (constraint) {
-        return Container(
-          color: Colors.black,
-          width: constraints.maxHeight * 4 / 3,
-          height: constraints.maxHeight,
-          child: selectedImageIndex != -1
-              ? Image.file(
-                  File(imageFileList[selectedImageIndex].path),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        );
-      } else {
-        return Container(
-          color: Colors.black,
-          width: constraints.maxWidth,
-          height: constraints.maxWidth * 3 / 4,
-          child: selectedImageIndex != -1
-              ? Image.file(
-                  File(imageFileList[selectedImageIndex].path),
-                  fit: BoxFit.cover,
-                )
-              : null,
-        );
-      }
-    });
+        child: EditorArea(
+            screenFormat: screenFormat,
+            imageFileList: imageFileList,
+            selectedImageIndex: selectedImageIndex));
   }
 
   Widget playButtons(BuildContext context) {
     context = this.context;
-    return Expanded(
+    return const Expanded(
       flex: 1,
-      child: Container(
-          color: Colors.white,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                  onPressed: imageFileList.isEmpty
-                      ? null
-                      : selectedImageIndex != 0
-                          ? () {
-                              setState(() {
-                                selectedImageIndex--;
-                              });
-                            }
-                          : null,
-                  icon: Icon(
-                    Icons.keyboard_arrow_left_outlined,
-                    color:
-                        imageFileList.isEmpty ? Colors.black26 : Colors.black,
-                    size: 36,
-                  )),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                      onPressed: !isPlaying ? null : () {},
-                      icon: Icon(
-                        Icons.keyboard_double_arrow_left,
-                        color: isPlaying ? Colors.black : Colors.black26,
-                        size: 36,
-                      )),
-                  IconButton(
-                      onPressed: () {
-                        setState(() {
-                          isPlaying = !isPlaying;
-                        });
-                      },
-                      icon: Icon(
-                        !isPlaying ? Icons.play_arrow : Icons.pause,
-                        color: Colors.deepPurpleAccent,
-                        size: 36,
-                      )),
-                  IconButton(
-                      onPressed: !isPlaying ? null : () {},
-                      icon: Icon(
-                        Icons.keyboard_double_arrow_right,
-                        color: isPlaying ? Colors.black : Colors.black26,
-                        size: 36,
-                      )),
-                ],
-              ),
-              IconButton(
-                  onPressed: imageFileList.isEmpty
-                      ? null
-                      : selectedImageIndex != imageFileList.length - 1
-                          ? () {
-                              setState(() {
-                                selectedImageIndex++;
-                              });
-                            }
-                          : null,
-                  icon: Icon(
-                    Icons.keyboard_arrow_right_outlined,
-                    color:
-                        imageFileList.isEmpty ? Colors.black26 : Colors.black,
-                    size: 36,
-                  )),
-            ],
-          )),
+      child: ControlPanel(),
     );
   }
 
   Widget editArea(BuildContext context) {
     context = this.context;
-    return Expanded(
+    return const Expanded(
       flex: 3,
-      child: Container(
-        alignment: Alignment.centerLeft,
-        child: ListView(
-          scrollDirection: Axis.vertical,
-          children: [
-            Container(
-                color: Colors.black,
-                height: 184,
-                child: imageFileList.isEmpty
-                    ? const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.image),
-                          Text("Add Photo"),
-                        ],
-                      )
-                    : ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: imageFileList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          if (index == imageFileList.length - 1) {
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                    width: 110,
-                                    height: 110,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Colors.white, width: 5),
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 16),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedImageIndex = index;
-                                        });
-                                      },
-                                      child: Image.file(
-                                        File(imageFileList[index].path),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )),
-                              ],
-                            );
-                          }
-                          return Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                    width: 110,
-                                    height: 110,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Colors.white, width: 5),
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 16),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedImageIndex = index;
-                                        });
-                                      },
-                                      child: Image.file(
-                                        File(imageFileList[index].path),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )),
-                                const Icon(Icons.keyboard_double_arrow_right),
-                              ]);
-                        },
-                      )),
-            Container(
-              color: Colors.black54,
-              height: 98,
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.music_note),
-                  Text("Add Music"),
-                ],
-              ),
-            ),
-            Container(
-              color: Colors.black,
-              height: 98,
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.text_fields),
-                  Text("Add Text"),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: EditingContents(),
     );
   }
 
@@ -488,7 +147,7 @@ class _EditorState extends State<Editor> {
             IconButton(
               icon: const Icon(Icons.add_a_photo, size: 32),
               onPressed: () {
-                _selectImages();
+                Provider.of<EditorProvider>(context, listen: false).getImages();
               },
             ),
             IconButton(
@@ -533,9 +192,8 @@ class _EditorState extends State<Editor> {
                       if (_textEditingController.text.isEmpty) {
                         _showsnackbar("The file name cannot be blank");
                       } else {
-                        setState(() {
-                          documentName = _textEditingController.text;
-                        });
+                        Provider.of<EditorProvider>(context, listen: false)
+                            .changeDocumentName(_textEditingController.text);
                       }
                     },
                     child: const Text('Onayla'),
@@ -562,4 +220,77 @@ class _EditorState extends State<Editor> {
           duration: const Duration(seconds: 1),
         ),
       );
+
+  Widget screen_1_1(BuildContext context) {
+    context = this.context;
+    return LayoutBuilder(builder: (context, constraints) {
+      double size = constraints.maxWidth < constraints.maxHeight
+          ? constraints.maxWidth
+          : constraints.maxHeight;
+      return Container(
+        color: Colors.black,
+        width: size,
+        height: size,
+        child: Transform(
+          transform: _matrix,
+          alignment: Alignment.center,
+          child: GestureDetector(
+            onScaleStart: (details) {
+              setState(() {
+                _baseScaleFactor = _scaleFactor;
+                _baseAngleFactor = _angleFactor;
+              });
+            },
+            onScaleUpdate: (details) {
+              setState(() {
+                _scaleFactor = _baseScaleFactor * details.scale;
+                _angleFactor = _baseAngleFactor + details.rotation;
+
+                var angleMatrix = Matrix4.identity();
+                angleMatrix[0] = angleMatrix[5] = math.cos(_angleFactor);
+                angleMatrix[1] = math.sin(_angleFactor);
+                angleMatrix[4] = -math.sin(_angleFactor);
+
+                var scaleMatrix = Matrix4.identity();
+                scaleMatrix[0] = scaleMatrix[5] = _scaleFactor;
+
+                _matrix = angleMatrix * scaleMatrix;
+              });
+            },
+            child: Container(
+              height: size,
+              width: size,
+              color: Colors.red,
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget dragAndDroppableArea(BuildContext context, int size) {
+    size = size;
+    context = context;
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          top: 0,
+          child: GestureDetector(
+            onScaleUpdate: (details) {
+              setState(() {
+                _imageScale = details.scale;
+              });
+            },
+            child: Image.file(
+              File(imageFileList[selectedImageIndex].path),
+              width: size * _imageScale,
+              height: size * _imageScale,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
