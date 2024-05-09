@@ -24,7 +24,8 @@ class EditorProvider with ChangeNotifier {
     if (selectedImages.isNotEmpty) {
       imageFileList.addAll(selectedImages);
     }
-    selectedImageIndex = 0;
+
+    selectedImageIndex = imageFileList.length - 1;
 
     notifyListeners();
   }

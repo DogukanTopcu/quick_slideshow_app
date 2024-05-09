@@ -43,50 +43,58 @@ class _ImagesState extends State<Images> {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
-                            width: 110,
-                            height: 110,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white, width: 5),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
-                            child: GestureDetector(
-                              onTap: () {
-                                Provider.of<EditorProvider>(context,
-                                        listen: false)
-                                    .changeSelectedImageIndex(index);
-                              },
-                              child: Image.file(
-                                File(imageFileList[index].path),
-                                fit: BoxFit.cover,
+                        GestureDetector(
+                          onTap: () {
+                            Provider.of<EditorProvider>(context, listen: false)
+                                .changeSelectedImageIndex(index);
+                          },
+                          child: Container(
+                              width: 110,
+                              height: 110,
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: Colors.white, width: 5),
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                            )),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.file(
+                                  File(imageFileList[index].path),
+                                  fit: BoxFit.cover,
+                                ),
+                              )),
+                        ),
                       ],
                     );
                   }
                   return Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
-                            width: 110,
-                            height: 110,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white, width: 5),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
-                            child: GestureDetector(
-                              onTap: () {
-                                Provider.of<EditorProvider>(context,
-                                        listen: false)
-                                    .changeSelectedImageIndex(index);
-                              },
-                              child: Image.file(
-                                File(imageFileList[index].path),
-                                fit: BoxFit.cover,
+                        GestureDetector(
+                          onTap: () {
+                            Provider.of<EditorProvider>(context, listen: false)
+                                .changeSelectedImageIndex(index);
+                          },
+                          child: Container(
+                              width: 110,
+                              height: 110,
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: Colors.white, width: 5),
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                            )),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.file(
+                                  File(imageFileList[index].path),
+                                  fit: BoxFit.cover,
+                                ),
+                              )),
+                        ),
                         const Icon(Icons.keyboard_double_arrow_right),
                       ]);
                 },

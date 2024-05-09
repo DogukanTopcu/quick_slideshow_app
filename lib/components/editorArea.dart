@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,21 +7,30 @@ import 'package:provider/provider.dart';
 import 'package:quick_slideshow/providers/editorProvider.dart';
 
 class EditorArea extends StatefulWidget {
-  final int screenFormat;
-  final int selectedImageIndex;
-  final List<XFile> imageFileList;
-
-  const EditorArea(
-      {super.key,
-      required this.screenFormat,
-      required this.imageFileList,
-      required this.selectedImageIndex});
+  const EditorArea({super.key});
 
   @override
   State<EditorArea> createState() => _EditorAreaState();
 }
 
 class _EditorAreaState extends State<EditorArea> {
+  // MOCK ATTRIBUTES :::::::::::::::::::::::::::::::::::::::::::::::::..
+  Matrix4 _matrix = Matrix4(
+    1, 0, 0, 0, //
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1,
+  );
+
+  double _baseScaleFactor = 1.0;
+  double _scaleFactor = 1.0;
+
+  double _baseAngleFactor = 0;
+  double _angleFactor = 0;
+
+  double _imageScale = 1;
+  // :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
   List<XFile> imageFileList = [];
   int selectedImageIndex = -1;
   int screenFormat = 0;
@@ -178,5 +188,68 @@ class _EditorAreaState extends State<EditorArea> {
             fit: BoxFit.cover,
           )
         : null;
+  }
+
+  Widget content2(BuildContext context, double size) {
+    context = this.context;
+    return Transform(
+      transform: _matrix,
+      alignment: Alignment.center,
+      child: GestureDetector(
+        onScaleStart: (details) {
+          setState(() {
+            _baseScaleFactor = _scaleFactor;
+            _baseAngleFactor = _angleFactor;
+          });
+        },
+        onScaleUpdate: (details) {
+          setState(() {
+            _scaleFactor = _baseScaleFactor * details.scale;
+            _angleFactor = _baseAngleFactor + details.rotation;
+
+            var angleMatrix = Matrix4.identity();
+            angleMatrix[0] = angleMatrix[5] = math.cos(_angleFactor);
+            angleMatrix[1] = math.sin(_angleFactor);
+            angleMatrix[4] = -math.sin(_angleFactor);
+
+            var scaleMatrix = Matrix4.identity();
+            scaleMatrix[0] = scaleMatrix[5] = _scaleFactor;
+
+            _matrix = angleMatrix * scaleMatrix;
+          });
+        },
+        child: Container(
+          height: size,
+          width: size,
+          color: Colors.red,
+        ),
+      ),
+    );
+  }
+
+  Widget dragAndDroppableArea(BuildContext context, int size) {
+    size = size;
+    context = context;
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          top: 0,
+          child: GestureDetector(
+            onScaleUpdate: (details) {
+              setState(() {
+                _imageScale = details.scale;
+              });
+            },
+            child: Image.file(
+              File(imageFileList[selectedImageIndex].path),
+              width: size * _imageScale,
+              height: size * _imageScale,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
