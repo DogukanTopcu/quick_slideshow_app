@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:quick_slideshow/home.dart';
 import 'package:quick_slideshow/providers/editorProvider.dart';
 import 'package:provider/provider.dart';
+import 'package:quick_slideshow/providers/timerProvider.dart';
 
-// TODOS:
-/*
- 1. Ekran seçeneklerinin oluşturulması
- 2. Fotoğrafların ekrana oturtulması
- 3. Fotoğrafın ekrandaki konumunun el ile ayarlanabilmesi
- 4. Fotoğraf Editleme Ekranı
- 5. Ses parçası yükleme butonu
- 6. Slide Geçişleri
- 7. Editor'e zaman çizelgesinin eklenmesi
- 8. Play butonuna basıldığında video'nun akması
- 9. Text Alanının Eklenmesi
-10. Çizim Alanının Eklenmesi
-11. Kayıt sistemi
-12. Ana Sayfanın düzenlenmesi
-13. Export işlemleri
-*/
+void main() async {
+  // Initialize hive
+  await Hive.initFlutter();
 
-void main() {
-  runApp(ChangeNotifierProvider<EditorProvider>(
-    create: (BuildContext context) => EditorProvider(),
-    child: const MyApp(),
-  ));
+  // Create a box
+  // var box = await Hive.openBox("Projects");
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (BuildContext context) => EditorProvider()),
+        ChangeNotifierProvider(
+            create: (BuildContext context) => TimerProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -36,10 +34,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Quick Slideshow',
       theme: ThemeData(
-        // colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 66, 183, 58)),
         brightness: Brightness.dark, // Koyu tema
         primarySwatch: Colors.blue,
-        // useMaterial3: true,
       ),
       home: const MyHomePage(),
     );

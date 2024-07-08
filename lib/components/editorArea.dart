@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:quick_slideshow/components/image_transitions/fadeTransition.dart';
+import 'package:quick_slideshow/models/image_model.dart';
 import 'package:quick_slideshow/providers/editorProvider.dart';
 
 class EditorArea extends StatefulWidget {
@@ -31,13 +34,18 @@ class _EditorAreaState extends State<EditorArea> {
   double _imageScale = 1;
   // :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-  List<XFile> imageFileList = [];
+  List<Uint8List> imageFileList = [];
+  List<ImageData> imgFileList = [];
+
   int selectedImageIndex = -1;
   int screenFormat = 0;
   @override
   Widget build(BuildContext context) {
     screenFormat = Provider.of<EditorProvider>(context).screenFormat;
+
     imageFileList = Provider.of<EditorProvider>(context).imageFileList;
+    imgFileList = Provider.of<EditorProvider>(context).imgFileList;
+
     selectedImageIndex =
         Provider.of<EditorProvider>(context).selectedImageIndex;
     return Stack(
@@ -77,7 +85,7 @@ class _EditorAreaState extends State<EditorArea> {
         color: Colors.black,
         width: size,
         height: size,
-        child: content(context),
+        child: ClipRect(child: content(context)),
       );
     });
   }
@@ -94,14 +102,14 @@ class _EditorAreaState extends State<EditorArea> {
           color: Colors.black,
           width: constraints.maxWidth,
           height: constraints.maxWidth * 16 / 9,
-          child: content(context),
+          child: ClipRect(child: content(context)),
         );
       } else {
         return Container(
           color: Colors.black,
           width: constraints.maxHeight * 9 / 16,
           height: constraints.maxHeight,
-          child: content(context),
+          child: ClipRect(child: content(context)),
         );
       }
     });
@@ -119,14 +127,14 @@ class _EditorAreaState extends State<EditorArea> {
           color: Colors.black,
           width: constraints.maxHeight * 16 / 9,
           height: constraints.maxHeight,
-          child: content(context),
+          child: ClipRect(child: content(context)),
         );
       } else {
         return Container(
           color: Colors.black,
           width: constraints.maxWidth,
           height: constraints.maxWidth * 9 / 16,
-          child: content(context),
+          child: ClipRect(child: content(context)),
         );
       }
     });
@@ -143,14 +151,14 @@ class _EditorAreaState extends State<EditorArea> {
           color: Colors.black,
           width: constraints.maxWidth,
           height: constraints.maxWidth * 4 / 3,
-          child: content(context),
+          child: ClipRect(child: content(context)),
         );
       } else {
         return Container(
           color: Colors.black,
           width: constraints.maxHeight * 3 / 4,
           height: constraints.maxHeight,
-          child: content(context),
+          child: ClipRect(child: content(context)),
         );
       }
     });
@@ -167,25 +175,76 @@ class _EditorAreaState extends State<EditorArea> {
           color: Colors.black,
           width: constraints.maxHeight * 4 / 3,
           height: constraints.maxHeight,
-          child: content(context),
+          child: ClipRect(child: content(context)),
         );
       } else {
         return Container(
           color: Colors.black,
           width: constraints.maxWidth,
           height: constraints.maxWidth * 3 / 4,
-          child: content(context),
+          child: ClipRect(child: content(context)),
         );
       }
     });
   }
 
   Widget? content(BuildContext context) {
+    final _controller = GlobalKey<ExtendedImageEditorState>();
+    context = this.context;
+
+    List<Widget> images = [];
+    for (var i = 0; i < imageFileList.length; i++) {
+      images.add(
+        ExtendedImage.memory(
+          imageFileList[i],
+          cacheRawData: true,
+          fit: BoxFit.cover,
+          extendedImageEditorKey: _controller,
+          mode: ExtendedImageMode.gesture,
+        ),
+      );
+    }
+    return selectedImageIndex != -1
+        ? FadeTransitionWidget(child: images[selectedImageIndex])
+        : Image.asset("images/quick-slideshow-logo.png");
+  }
+
+  Widget? content1(BuildContext context) {
+    TransformationController viewTransformationController =
+        TransformationController();
+
+    double zoomFactor =
+        selectedImageIndex == -1 ? 1 : imgFileList[selectedImageIndex].scale;
+    double xTranslate =
+        selectedImageIndex == -1 ? 1 : imgFileList[selectedImageIndex].xValue;
+    double yTranslate =
+        selectedImageIndex == -1 ? 1 : imgFileList[selectedImageIndex].yValue;
+
+    viewTransformationController.value.setEntry(0, 0, zoomFactor);
+    viewTransformationController.value.setEntry(1, 1, zoomFactor);
+    viewTransformationController.value.setEntry(2, 2, zoomFactor);
+    viewTransformationController.value.setEntry(0, 3, -xTranslate);
+    viewTransformationController.value.setEntry(1, 3, -yTranslate);
+
     context = this.context;
     return selectedImageIndex != -1
-        ? Image.file(
-            File(imageFileList[selectedImageIndex].path),
-            fit: BoxFit.cover,
+        ? InteractiveViewer(
+            maxScale: 5,
+            transformationController: viewTransformationController,
+            onInteractionUpdate: (ScaleUpdateDetails details) {},
+            onInteractionEnd: (ScaleEndDetails details) {
+              imgFileList[selectedImageIndex].scale =
+                  viewTransformationController.value.getMaxScaleOnAxis();
+
+              imgFileList[selectedImageIndex].xValue =
+                  viewTransformationController.value.getTranslation()[0];
+              imgFileList[selectedImageIndex].yValue =
+                  viewTransformationController.value.getTranslation()[1];
+            },
+            child: Image.file(
+              File(imgFileList[selectedImageIndex].imgUrl.path),
+              fit: BoxFit.cover,
+            ),
           )
         : null;
   }
@@ -241,8 +300,8 @@ class _EditorAreaState extends State<EditorArea> {
                 _imageScale = details.scale;
               });
             },
-            child: Image.file(
-              File(imageFileList[selectedImageIndex].path),
+            child: Image.memory(
+              imageFileList[selectedImageIndex],
               width: size * _imageScale,
               height: size * _imageScale,
               fit: BoxFit.cover,

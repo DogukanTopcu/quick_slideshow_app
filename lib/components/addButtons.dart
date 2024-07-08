@@ -28,6 +28,7 @@ class _AddButtonsState extends State<AddButtons> {
             icon: const Icon(Icons.music_video, size: 32),
             onPressed: () async {
               // final result = await
+              Provider.of<EditorProvider>(context, listen: false).getAudios();
             },
           ),
           IconButton(
