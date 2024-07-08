@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:quick_slideshow/components/image_transitions/fadeTransition.dart';
 import 'package:quick_slideshow/models/image_model.dart';
 import 'package:quick_slideshow/providers/editorProvider.dart';
+import 'package:quick_slideshow/screen/upgrade.dart';
 
 class EditorArea extends StatefulWidget {
   const EditorArea({super.key});
@@ -205,7 +206,44 @@ class _EditorAreaState extends State<EditorArea> {
       );
     }
     return selectedImageIndex != -1
-        ? FadeTransitionWidget(child: images[selectedImageIndex])
+        ? Stack(
+            children: [
+              Positioned(
+                bottom: 0,
+                top: 0,
+                right: 0,
+                left: 0,
+                child: FadeTransitionWidget(child: images[selectedImageIndex]),
+              ),
+              Positioned(
+                  bottom: 2,
+                  left: 2,
+                  child: GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Upgrade()),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          "images/quick-slideshow-logo.png",
+                          scale: 8,
+                        ),
+                        const Text(
+                          "Quick",
+                          style: TextStyle(fontSize: 10),
+                        ),
+                        const Text(
+                          "Slideshow",
+                          style: TextStyle(fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ))
+            ],
+          )
         : Image.asset("images/quick-slideshow-logo.png");
   }
 

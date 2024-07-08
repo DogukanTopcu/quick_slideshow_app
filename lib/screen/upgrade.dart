@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:quick_slideshow/home.dart';
 
 class Upgrade extends StatelessWidget {
   const Upgrade({super.key});
@@ -14,14 +13,6 @@ class Upgrade extends StatelessWidget {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const MyHomePage()));
-                  },
-                  icon: const Icon(Icons.close)),
               const Text("Upgrades"),
               TextButton(
                 onPressed: () {},

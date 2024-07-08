@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             IconButton(
               onPressed: () {
-                Navigator.pushReplacement(context,
+                Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const Upgrade()));
               },
               icon: const Icon(

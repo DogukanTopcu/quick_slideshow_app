@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quick_slideshow/components/editorContents/images.dart';
 import 'package:quick_slideshow/components/editorContents/music.dart';
-import 'package:quick_slideshow/components/editorContents/texts.dart';
 
 class EditingContents extends StatefulWidget {
   const EditingContents({super.key});
@@ -20,7 +19,6 @@ class _EditingContentsState extends State<EditingContents> {
         children: const <Widget>[
           Images(),
           Music(),
-          Texts(),
         ],
       ),
     );

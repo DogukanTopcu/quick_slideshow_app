@@ -85,7 +85,9 @@ class EditorProvider with ChangeNotifier {
   void changeSelectedImageIndex(int index) {
     selectedImageIndex = index;
     isPlaying = false;
-    _timer!.cancel();
+    if (_timer != null) {
+      _timer!.cancel();
+    }
     notifyListeners();
   }
 
@@ -165,5 +167,11 @@ class EditorProvider with ChangeNotifier {
       _timer!.cancel();
     }
     super.dispose();
+  }
+
+  void changeImageDuration(int imageDuration) {
+    secondsPerImage = imageDuration;
+    stopTime = secondsPerImage * imageFileList.length;
+    notifyListeners();
   }
 }
