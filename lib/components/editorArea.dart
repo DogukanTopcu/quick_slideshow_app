@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -6,7 +5,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_slideshow/components/image_transitions/fadeTransition.dart';
-import 'package:quick_slideshow/models/image_model.dart';
 import 'package:quick_slideshow/providers/editorProvider.dart';
 import 'package:quick_slideshow/screen/upgrade.dart';
 
@@ -36,16 +34,16 @@ class _EditorAreaState extends State<EditorArea> {
   // :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
   List<Uint8List> imageFileList = [];
-  List<ImageData> imgFileList = [];
 
   int selectedImageIndex = -1;
   int screenFormat = 0;
   @override
   Widget build(BuildContext context) {
-    screenFormat = Provider.of<EditorProvider>(context).screenFormat;
+    screenFormat =
+        Provider.of<EditorProvider>(context).slideshowData.screenFormat;
 
-    imageFileList = Provider.of<EditorProvider>(context).imageFileList;
-    imgFileList = Provider.of<EditorProvider>(context).imgFileList;
+    imageFileList =
+        Provider.of<EditorProvider>(context).slideshowData.imageFileList;
 
     selectedImageIndex =
         Provider.of<EditorProvider>(context).selectedImageIndex;
@@ -245,46 +243,6 @@ class _EditorAreaState extends State<EditorArea> {
             ],
           )
         : Image.asset("images/quick-slideshow-logo.png");
-  }
-
-  Widget? content1(BuildContext context) {
-    TransformationController viewTransformationController =
-        TransformationController();
-
-    double zoomFactor =
-        selectedImageIndex == -1 ? 1 : imgFileList[selectedImageIndex].scale;
-    double xTranslate =
-        selectedImageIndex == -1 ? 1 : imgFileList[selectedImageIndex].xValue;
-    double yTranslate =
-        selectedImageIndex == -1 ? 1 : imgFileList[selectedImageIndex].yValue;
-
-    viewTransformationController.value.setEntry(0, 0, zoomFactor);
-    viewTransformationController.value.setEntry(1, 1, zoomFactor);
-    viewTransformationController.value.setEntry(2, 2, zoomFactor);
-    viewTransformationController.value.setEntry(0, 3, -xTranslate);
-    viewTransformationController.value.setEntry(1, 3, -yTranslate);
-
-    context = this.context;
-    return selectedImageIndex != -1
-        ? InteractiveViewer(
-            maxScale: 5,
-            transformationController: viewTransformationController,
-            onInteractionUpdate: (ScaleUpdateDetails details) {},
-            onInteractionEnd: (ScaleEndDetails details) {
-              imgFileList[selectedImageIndex].scale =
-                  viewTransformationController.value.getMaxScaleOnAxis();
-
-              imgFileList[selectedImageIndex].xValue =
-                  viewTransformationController.value.getTranslation()[0];
-              imgFileList[selectedImageIndex].yValue =
-                  viewTransformationController.value.getTranslation()[1];
-            },
-            child: Image.file(
-              File(imgFileList[selectedImageIndex].imgUrl.path),
-              fit: BoxFit.cover,
-            ),
-          )
-        : null;
   }
 
   Widget content2(BuildContext context, double size) {

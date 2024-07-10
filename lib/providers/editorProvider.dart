@@ -5,19 +5,13 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:quick_slideshow/models/image_model.dart';
+import 'package:quick_slideshow/data/dataStorage.dart';
+import 'package:quick_slideshow/models/slideshowModel.dart';
 
 class EditorProvider with ChangeNotifier {
-  int id = 0;
+  late SlideshowData slideshowData;
   bool isPlaying = false;
-
-  List<Uint8List> imageFileList = [];
-  List<ImageData> imgFileList = [];
-
-  List<XFile> audioFileList = [];
   int selectedImageIndex = -1;
-  String documentName = "Slideshow";
-  int screenFormat = 0;
   final ImagePicker ip = ImagePicker();
 
   // Timer
@@ -28,36 +22,42 @@ class EditorProvider with ChangeNotifier {
   int get time => _start;
   bool get isRunning => _isRunning;
 
-  int secondsPerImage = 3;
   int stopTime = 0;
 
   void initState() {
-    id = 0;
     isPlaying = false;
 
-    imageFileList = [];
-    imgFileList = [];
-
-    audioFileList = [];
     selectedImageIndex = -1;
-    documentName = "Slideshow";
-    screenFormat = 0;
+  }
+
+  void loadData(SlideshowData data) {
+    slideshowData = data;
+
+    isPlaying = false;
+    selectedImageIndex = slideshowData.imageFileList.isEmpty ? -1 : 0;
+    stopTime =
+        slideshowData.imageFileList.length * slideshowData.secondsPerImage;
+    timeElapsed = 0;
+    _start = 0;
+    _isRunning = false;
+
+    notifyListeners();
   }
 
   Future<void> getImages() async {
     final List<XFile> selectedImages = await ip.pickMultiImage();
     if (selectedImages.isNotEmpty) {
       for (XFile element in selectedImages) {
-        imgFileList.add(ImageData(element, 2.0, 1, 1));
-
         Uint8List bytes = await element.readAsBytes();
-        imageFileList.add(bytes);
+        slideshowData.imageFileList.add(bytes);
       }
-      // imageFileList.addAll(selectedImages);
     }
 
-    selectedImageIndex = imgFileList.length - 1;
-    stopTime = secondsPerImage * imageFileList.length;
+    selectedImageIndex = slideshowData.imageFileList.length - 1;
+    stopTime =
+        slideshowData.secondsPerImage * slideshowData.imageFileList.length;
+
+    await DataStorage.updateSlideshowData(slideshowData);
 
     notifyListeners();
   }
@@ -68,7 +68,7 @@ class EditorProvider with ChangeNotifier {
         type: FileType.custom,
         allowedExtensions: ["mp3", "aac", "wav"]);
     if (result != null) {
-      audioFileList =
+      slideshowData.audioFileList =
           result.paths.map((path) => File(path!)).cast<XFile>().toList();
     } else {
       // User canceled the picker
@@ -77,8 +77,9 @@ class EditorProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void changeScreenFormat(int format) {
-    screenFormat = format;
+  void changeScreenFormat(int format) async {
+    slideshowData.screenFormat = format;
+    await DataStorage.updateSlideshowData(slideshowData);
     notifyListeners();
   }
 
@@ -96,13 +97,15 @@ class EditorProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void changeDocumentName(String dName) {
-    documentName = dName;
+  Future<void> changeDocumentName(String dName) async {
+    slideshowData.documentName = dName;
+    await DataStorage.updateSlideshowData(slideshowData);
     notifyListeners();
   }
 
-  void updateImage(Uint8List updatedImage, int index) {
-    imageFileList[index] = updatedImage;
+  void updateImage(Uint8List updatedImage, int index) async {
+    slideshowData.imageFileList[index] = updatedImage;
+    await DataStorage.updateSlideshowData(slideshowData);
     notifyListeners();
   }
 
@@ -125,7 +128,8 @@ class EditorProvider with ChangeNotifier {
         return;
       }
 
-      selectedImageIndex = (timeElapsed / secondsPerImage).toInt();
+      selectedImageIndex =
+          (timeElapsed / slideshowData.secondsPerImage).toInt();
       _isRunning = false;
       notifyListeners();
     }
@@ -135,7 +139,8 @@ class EditorProvider with ChangeNotifier {
     if (_timer != null) {
       _timer!.cancel();
     }
-    timeElapsed = (selectedImageIndex * secondsPerImage).toDouble();
+    timeElapsed =
+        (selectedImageIndex * slideshowData.secondsPerImage).toDouble();
     _timer = Timer.periodic(const Duration(seconds: 1), _tick);
     _isRunning = true;
     notifyListeners();
@@ -169,9 +174,12 @@ class EditorProvider with ChangeNotifier {
     super.dispose();
   }
 
-  void changeImageDuration(int imageDuration) {
-    secondsPerImage = imageDuration;
-    stopTime = secondsPerImage * imageFileList.length;
+  void changeImageDuration(int imageDuration) async {
+    slideshowData.secondsPerImage = imageDuration;
+    stopTime =
+        slideshowData.secondsPerImage * slideshowData.imageFileList.length;
+
+    await DataStorage.updateSlideshowData(slideshowData);
     notifyListeners();
   }
 }

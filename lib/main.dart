@@ -3,7 +3,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:quick_slideshow/home.dart';
 import 'package:quick_slideshow/providers/editorProvider.dart';
 import 'package:provider/provider.dart';
-import 'package:quick_slideshow/providers/timerProvider.dart';
+import 'package:quick_slideshow/providers/homeProvider.dart';
 
 void main() async {
   // Initialize hive
@@ -16,9 +16,11 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (BuildContext context) => EditorProvider()),
+          create: (BuildContext context) => EditorProvider(),
+        ),
         ChangeNotifierProvider(
-            create: (BuildContext context) => TimerProvider()),
+          create: (BuildContext context) => HomeScreenProvider(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -31,6 +33,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Provider.of<HomeScreenProvider>(context, listen: false).loadData();
     return MaterialApp(
       title: 'Quick Slideshow',
       theme: ThemeData(

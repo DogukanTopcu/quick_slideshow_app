@@ -12,11 +12,12 @@ class EditorAppBarTitle extends StatefulWidget {
 }
 
 class _EditorAppBarTitleState extends State<EditorAppBarTitle> {
-  String documentName = "Slideshow";
+  String documentName = "";
   final TextEditingController _textEditingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    documentName = Provider.of<EditorProvider>(context).documentName;
+    documentName =
+        Provider.of<EditorProvider>(context).slideshowData.documentName;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

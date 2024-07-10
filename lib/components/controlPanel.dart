@@ -19,7 +19,8 @@ class _ControlState extends State<ControlPanel> {
   @override
   Widget build(BuildContext context) {
     isPlaying = Provider.of<EditorProvider>(context).isPlaying;
-    imageFileList = Provider.of<EditorProvider>(context).imageFileList;
+    imageFileList =
+        Provider.of<EditorProvider>(context).slideshowData.imageFileList;
     selectedImageIndex =
         Provider.of<EditorProvider>(context).selectedImageIndex;
 

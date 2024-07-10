@@ -12,13 +12,15 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   late int _screenFormat;
-  late int imageDuration = Provider.of<EditorProvider>(context).secondsPerImage;
+  late int imageDuration =
+      Provider.of<EditorProvider>(context).slideshowData.secondsPerImage;
 
   @override
   void initState() {
     super.initState();
-    _screenFormat =
-        Provider.of<EditorProvider>(context, listen: false).screenFormat;
+    _screenFormat = Provider.of<EditorProvider>(context, listen: false)
+        .slideshowData
+        .screenFormat;
   }
 
   Widget button(String text, int format) {
